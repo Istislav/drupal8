@@ -16,11 +16,14 @@ services:
       - web
     ports:
       - '80:80'
-      - '8081:8080' # Dashboard
+      - '8080:8080' # Dashboard
+    links:
+      - php
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - "traefik.docker.network=web"
+
 
   mariadb:
     image: wodby/mariadb:$MARIADB_TAG
@@ -28,13 +31,15 @@ services:
     stop_grace_period: 30s
     networks:
       - internal
+    ports:
+      - 3306:3306
+    labels:
+      - traefik.enable=false
     environment:
       MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
       MYSQL_DATABASE: $DB_NAME
       MYSQL_USER: $DB_USER
       MYSQL_PASSWORD: $DB_PASSWORD
-    labels:
-      - traefik.enable=false
     volumes:
       #      - ./mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
       - ./mysql:/var/lib/mysql:cached # Use bind mount
@@ -57,8 +62,8 @@ services:
     depends_on:
       - mariadb
     restart: always
-    ports:
-      - 8080:8080
+    #    ports:
+    #      - 8080:8080
     labels:
       - "traefik.docker.network=web"
       - 'traefik.backend=${PROJECT_NAME}_adminer'
@@ -69,11 +74,15 @@ services:
     image: wodby/php:latest
     container_name: "${PROJECT_NAME}_php"
     user: ${UID}
+#    ports: # !!! ports is a bad idea if you use traefik
+#      - 88:80
     networks:
       - internal
+      - web
     depends_on:
       - mariadb
     environment:
+      APP_ENV: dev
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       DB_HOST: $DB_HOST
       DB_USER: $DB_USER
@@ -107,13 +116,16 @@ services:
       NGINX_STATIC_OPEN_FILE_CACHE: "off"
       NGINX_ERROR_LOG_LEVEL: debug
       NGINX_BACKEND_HOST: php
-      NGINX_SERVER_ROOT: /var/www/html/web
+      NGINX_SERVER_ROOT: /var/www/html/web/
       NGINX_CONF_INCLUDE: /var/www/html/nginx/*.conf
 
     #      NGINX_DRUPAL_FILE_PROXY_URL: http://example.com
     volumes:
       - ./:/var/www/html:cached
-#      - ./nginx/:/etc/nginx/conf.d:cached
+    #      - type: bind
+    #        source: ./nginx
+    #        target: /etc/nginx/conf.d
+    #        read_only: true
     # For macOS users (https://wodby.com/stacks/drupal/docs/local/docker-for-mac/)
     #      - ./:/var/www/html:cached # User-guided caching
     #      - docker-sync:/var/www/html # Docker-sync
@@ -121,7 +133,7 @@ services:
       - "traefik.docker.network=web"
       - 'traefik.backend=${PROJECT_NAME}_nginx'
       - 'traefik.port=80'
-      - 'traefik.frontend.rule=Host:${PROJECT_BASE_URL}'
+      - 'traefik.frontend.rule=Host:www.${PROJECT_BASE_URL}'
 
   portainer:
     image: portainer/portainer
