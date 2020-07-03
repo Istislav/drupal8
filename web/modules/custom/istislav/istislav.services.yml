@@ -1,0 +1,6 @@
+services:
+  istislav.twig_extension:
+    arguments: ['@renderer']
+    class: Drupal\istislav\TwigExtension\IstislavTwig
+    tags:
+      - { name: twig.extension }

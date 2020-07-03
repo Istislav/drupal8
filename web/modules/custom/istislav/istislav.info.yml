@@ -1,0 +1,9 @@
+name: Istislav
+type: module
+description: 'For drupal debugging'
+core: 8.x
+package: Istislav
+
+core_version_requirement: ^8 || ^9
+
+#configure: istislav.settings
