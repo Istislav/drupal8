@@ -9,7 +9,7 @@ networks:
 services:
   traefik:
     image: traefik:${TRAEFIK_TAG}
-    container_name: "${PROJECT_NAME}_traefik"
+    container_name: "traefic.${PROJECT_NAME}"
     command: -c /dev/null --web --docker --logLevel=INFO
     networks:
       - internal
@@ -27,7 +27,7 @@ services:
 
   mariadb:
     image: wodby/mariadb:$MARIADB_TAG
-    container_name: "${PROJECT_NAME}_mariadb"
+    container_name: "mariadb.${PROJECT_NAME}"
     stop_grace_period: 30s
     networks:
       - internal
@@ -46,7 +46,7 @@ services:
       - /tmp:/tmp:cached # Use bind mount
 
   adminer:
-    container_name: "${PROJECT_NAME}_adminer"
+    container_name: "adminer.${PROJECT_NAME}"
     image: adminer:latest
     networks:
       - internal
@@ -72,7 +72,7 @@ services:
 
   php:
     image: wodby/php:latest
-    container_name: "${PROJECT_NAME}_php"
+    container_name: "php.${PROJECT_NAME}"
     user: ${UID}
 #    ports: # !!! ports is a bad idea if you use traefik
 #      - 88:80
@@ -106,7 +106,7 @@ services:
 
   nginx:
     image: wodby/nginx:$NGINX_TAG
-    container_name: "${PROJECT_NAME}_nginx"
+    container_name: "www.${PROJECT_NAME}"
     networks:
       - internal
       - web
@@ -137,7 +137,7 @@ services:
 
   portainer:
     image: portainer/portainer
-    container_name: "${PROJECT_NAME}_portainer"
+    container_name: "portainer.${PROJECT_NAME}"
     command: --no-auth -H unix:///var/run/docker.sock
     networks:
       - internal
@@ -150,7 +150,7 @@ services:
 
   mailhog:
     image: mailhog/mailhog
-    container_name: "${PROJECT_NAME}_mailhog"
+    container_name: "mailhog.${PROJECT_NAME}"
     labels:
       - 'traefik.backend=${PROJECT_NAME}_mailhog'
       - 'traefik.port=8025'
