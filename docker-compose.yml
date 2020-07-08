@@ -66,7 +66,7 @@ services:
     #      - 8080:8080
     labels:
       - "traefik.docker.network=web"
-      - 'traefik.backend=${PROJECT_NAME}_adminer'
+      - 'traefik.backend=adminer.${PROJECT_NAME}'
       - 'traefik.port=8080'
       - 'traefik.frontend.rule=Host:adminer.${PROJECT_BASE_URL}'
 
@@ -131,7 +131,7 @@ services:
     #      - docker-sync:/var/www/html # Docker-sync
     labels:
       - "traefik.docker.network=web"
-      - 'traefik.backend=${PROJECT_NAME}_nginx'
+      - 'traefik.backend=www.${PROJECT_NAME}'
       - 'traefik.port=80'
       - 'traefik.frontend.rule=Host:www.${PROJECT_BASE_URL}'
 
@@ -144,7 +144,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
-      - 'traefik.backend=${PROJECT_NAME}_portainer'
+      - 'traefik.backend=portainer.${PROJECT_NAME}'
       - 'traefik.port=9000'
       - 'traefik.frontend.rule=Host:portainer.${PROJECT_BASE_URL}'
 
@@ -152,6 +152,6 @@ services:
     image: mailhog/mailhog
     container_name: "mailhog.${PROJECT_NAME}"
     labels:
-      - 'traefik.backend=${PROJECT_NAME}_mailhog'
+      - 'traefik.backend=mailhog.${PROJECT_NAME}'
       - 'traefik.port=8025'
       - 'traefik.frontend.rule=Host:mailhog.${PROJECT_BASE_URL}'
